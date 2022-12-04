@@ -1,0 +1,16 @@
+// helpers section
+@import "./helpers/fonts";
+@import "./helpers/mixins";
+@import "./helpers/variables";
+@import "./helpers/general";
+
+// include section
+@import "./include/normalize";
+
+// blocks section
+h1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  display: grid;
+}
