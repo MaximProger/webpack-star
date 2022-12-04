@@ -7,6 +7,7 @@ const BundleAnalyzerPlugin =
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 
 const paths = {
   src: "./src/",
@@ -57,15 +58,8 @@ const config = {
         ],
       },
       {
-        test: /\.png$/,
-        use: [
-          {
-            loader: "url-loader",
-            options: {
-              mimetype: "image/png",
-            },
-          },
-        ],
+        test: /\.(jpe?g|png|gif|svg)$/i,
+        type: "asset",
       },
       {
         test: /\.svg$/,
@@ -75,19 +69,44 @@ const config = {
   },
   optimization: {
     minimize: true,
-    minimizer: [new CssMinimizerPlugin()],
+    minimizer: [
+      new CssMinimizerPlugin(),
+      new ImageMinimizerPlugin({
+        deleteOriginalAssets: false,
+        minimizer: {
+          implementation: ImageMinimizerPlugin.imageminMinify,
+          options: {
+            plugins: [
+              "imagemin-gifsicle",
+              "imagemin-mozjpeg",
+              "imagemin-pngquant",
+              "imagemin-svgo",
+            ],
+          },
+        },
+        generator: [
+          {
+            type: "asset",
+            implementation: ImageMinimizerPlugin.imageminGenerate,
+            options: {
+              plugins: ["imagemin-webp"],
+            },
+          },
+        ],
+      }),
+    ],
   },
   plugins: [
-    // new CopyPlugin({
-    //   patterns: [{ from: "src/index.html" }],
-    // }),
+    new CopyPlugin({
+      patterns: [{ from: "./src/img", to: "img" }],
+    }),
     new HtmlWebpackPlugin({
-      filename: "index.html",
+      filename: "pages/index.html",
       title: "Custom template",
       template: paths.pages + "index.html",
     }),
     new HtmlWebpackPlugin({
-      filename: "page.html",
+      filename: "pages/page.html",
       title: "Page template",
       template: paths.pages + "page.html",
     }),
