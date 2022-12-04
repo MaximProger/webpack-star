@@ -1,7 +1,3 @@
-# crypt-mining.net
-
-Empty project.
-
 ## Building and running on localhost
 
 First install dependencies:
@@ -13,13 +9,19 @@ npm install
 To create a production build:
 
 ```sh
-npm run build-prod
+npm run prod
 ```
 
 To create a development build:
 
 ```sh
-npm run build-dev
+npm run dev
+```
+
+To start dev server:
+
+```sh
+npm run server
 ```
 
 ## Running

@@ -8,7 +8,8 @@
   "license": "ISC",
   "scripts": {
     "clean": "rm dist/bundle.js",
-    "build": "webpack",
+    "dev": "webpack --mode development",
+    "prod": "webpack --mode production",
     "serve": "webpack serve"
   },
   "devDependencies": {
@@ -29,7 +30,6 @@
     "imagemin-jpegtran": "^7.0.0",
     "imagemin-mozjpeg": "^10.0.0",
     "imagemin-optipng": "^8.0.0",
-    "imagemin-pngquant": "^9.0.2",
     "imagemin-svgo": "^10.0.1",
     "imagemin-webp": "^7.0.0",
     "mini-css-extract-plugin": "^2.7.1",
