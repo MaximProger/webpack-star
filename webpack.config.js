@@ -9,18 +9,12 @@ const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 
-const paths = {
-  src: "./src/",
-  pages: "./src/pages/",
-  js: "./src/js/",
-};
-
 const config = {
   mode: "development",
-  entry: paths.js + "index.js",
+  entry: "./src/js/index.js",
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "js/bundle.js",
+    filename: "js/bundle.[contenthash].js",
   },
   module: {
     rules: [
@@ -62,8 +56,11 @@ const config = {
         type: "asset",
       },
       {
-        test: /\.svg$/,
-        use: "file-loader",
+        test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+        type: "asset/resource",
+        generator: {
+          filename: "fonts/[name][ext]",
+        },
       },
     ],
   },
@@ -102,21 +99,16 @@ const config = {
     }),
     new HtmlWebpackPlugin({
       filename: "pages/index.html",
-      title: "Custom template",
-      template: paths.pages + "index.html",
-    }),
-    new HtmlWebpackPlugin({
-      filename: "pages/page.html",
-      title: "Page template",
-      template: paths.pages + "page.html",
+      title: "Главная",
+      template: "./src/pages/index.html",
     }),
     new BundleAnalyzerPlugin({
       analyzerMode: "static",
       openAnalyzer: false,
     }),
     new MiniCssExtractPlugin({
-      filename: "css/[name].css",
-      chunkFilename: "css/[id].css",
+      filename: "css/[name].[contenthash].css",
+      chunkFilename: "css/[id].[contenthash].css",
     }),
     new CleanWebpackPlugin(),
   ],
