@@ -29,7 +29,9 @@ const config = {
           MiniCssExtractPlugin.loader,
           {
             loader: "css-loader",
-            options: { importLoaders: 1 },
+            options: {
+              importLoaders: 2,
+            },
           },
           {
             loader: "postcss-loader",
@@ -54,9 +56,14 @@ const config = {
       {
         test: /\.(jpe?g|png|gif|svg)$/i,
         type: "asset",
+        generator: {
+          filename: (pathData) => {
+            return pathData.filename.replace("src/", "");
+          },
+        },
       },
       {
-        test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+        test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
         type: "asset/resource",
         generator: {
           filename: "fonts/[name][ext]",
@@ -102,6 +109,11 @@ const config = {
       title: "Главная",
       template: "./src/pages/index.html",
     }),
+    new HtmlWebpackPlugin({
+      filename: "pages/videoplayer.html",
+      title: "Главная с плеером",
+      template: "./src/pages/videoplayer.html",
+    }),
     new BundleAnalyzerPlugin({
       analyzerMode: "static",
       openAnalyzer: false,
@@ -117,7 +129,7 @@ const config = {
     compress: true,
     watchFiles: ["src/**/*"],
     open: {
-      target: ["index.html"],
+      target: ["pages/index.html"],
     },
     static: {
       directory: path.join(__dirname, "public"),
