@@ -1,140 +1,118 @@
-const webpack = require("webpack");
 const path = require("path");
-const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const BundleAnalyzerPlugin =
-  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 
-const config = {
-  mode: "development",
-  entry: "./src/js/index.js",
+const mode = process.env.NODE_ENV || "development";
+const devMode = mode === "development";
+const target = devMode ? "web" : "browserslist";
+const devtool = devMode ? "source-map" : undefined;
+
+module.exports = {
+  mode,
+  target,
+  devtool,
+  devServer: {
+    port: 3000,
+    open: true,
+    hot: true,
+  },
+  entry: path.resolve(__dirname, "src", "index.js"),
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "js/bundle.[contenthash].js",
+    clean: true,
+    filename: "[name].[contenthash].js",
+    assetModuleFilename: "assets/[name][ext]",
   },
+  plugins: [
+    new HtmlWebpackPlugin({
+      filename: "index.html",
+      template: "./src/index.html",
+    }),
+    new MiniCssExtractPlugin({
+      filename: "[name].[contenthash].css",
+    }),
+    new CopyPlugin({
+      patterns: [{ from: "static", to: "./" }],
+    }),
+  ],
   module: {
     rules: [
       {
-        test: /\.js$/,
-        use: "babel-loader",
-        exclude: /node_modules/,
+        test: /\.html$/i,
+        loader: "html-loader",
       },
       {
-        test: /\.scss$/,
+        test: /\.(c|sa|sc)ss$/i,
         use: [
-          MiniCssExtractPlugin.loader,
-          {
-            loader: "css-loader",
-            options: {
-              importLoaders: 2,
-            },
-          },
+          devMode ? "style-loader" : MiniCssExtractPlugin.loader,
+          "css-loader",
           {
             loader: "postcss-loader",
             options: {
               postcssOptions: {
-                plugins: [
-                  [
-                    "autoprefixer",
-                    {
-                      grid: true,
-                      overrideBrowserslist: ["last 3 versions"],
-                      cascade: true,
-                    },
-                  ],
-                ],
+                plugins: [require("postcss-preset-env")],
               },
             },
           },
-          "sass-loader",
+          "group-css-media-queries-loader",
+          {
+            loader: "resolve-url-loader",
+          },
+          {
+            loader: "sass-loader",
+            options: {
+              sourceMap: true,
+            },
+          },
         ],
       },
       {
-        test: /\.(jpe?g|png|gif|svg)$/i,
-        type: "asset",
-        generator: {
-          filename: (pathData) => {
-            return pathData.filename.replace("src/", "");
-          },
-        },
-      },
-      {
-        test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+        test: /\.woff2?$/i,
         type: "asset/resource",
         generator: {
           filename: "fonts/[name][ext]",
         },
       },
-    ],
-  },
-  optimization: {
-    minimize: true,
-    minimizer: [
-      new CssMinimizerPlugin(),
-      new ImageMinimizerPlugin({
-        deleteOriginalAssets: false,
-        minimizer: {
-          implementation: ImageMinimizerPlugin.imageminMinify,
-          options: {
-            plugins: [
-              "imagemin-gifsicle",
-              "imagemin-mozjpeg",
-              "imagemin-pngquant",
-              "imagemin-svgo",
+      {
+        test: /\.(jpe?g|png|webp|gif|svg)$/i,
+        use: devMode
+          ? []
+          : [
+              {
+                loader: "image-webpack-loader",
+                options: {
+                  mozjpeg: {
+                    progressive: true,
+                  },
+                  optipng: {
+                    enabled: false,
+                  },
+                  pngquant: {
+                    quality: [0.65, 0.9],
+                    speed: 4,
+                  },
+                  gifsicle: {
+                    interlaced: false,
+                  },
+                  webp: {
+                    quality: 75,
+                  },
+                },
+              },
             ],
+        type: "asset/resource",
+      },
+      {
+        test: /\.m?js$/i,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"],
           },
         },
-        generator: [
-          {
-            type: "asset",
-            implementation: ImageMinimizerPlugin.imageminGenerate,
-            options: {
-              plugins: ["imagemin-webp"],
-            },
-          },
-        ],
-      }),
+      },
     ],
   },
-  plugins: [
-    new CopyPlugin({
-      patterns: [{ from: "./src/img", to: "img" }],
-    }),
-    new HtmlWebpackPlugin({
-      filename: "pages/index.html",
-      title: "Главная",
-      template: "./src/pages/index.html",
-    }),
-    new HtmlWebpackPlugin({
-      filename: "pages/videoplayer.html",
-      title: "Главная с плеером",
-      template: "./src/pages/videoplayer.html",
-    }),
-    new BundleAnalyzerPlugin({
-      analyzerMode: "static",
-      openAnalyzer: false,
-    }),
-    new MiniCssExtractPlugin({
-      filename: "css/[name].[contenthash].css",
-      chunkFilename: "css/[id].[contenthash].css",
-    }),
-    new CleanWebpackPlugin(),
-  ],
-  devServer: {
-    port: 8080,
-    compress: true,
-    watchFiles: ["src/**/*"],
-    open: {
-      target: ["pages/index.html"],
-    },
-    static: {
-      directory: path.join(__dirname, "public"),
-    },
-  },
 };
-
-module.exports = config;

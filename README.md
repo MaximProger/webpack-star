@@ -1,31 +1,28 @@
-## Building and running on localhost
+# WEBPACK
 
-First install dependencies:
+ссылка на youtube
+https://youtu.be/o8KMucDpSno
 
-```sh
-npm install
+Для установки пакетов используйте команду npm install
+
+## Команды
+
+### Запуск сервера для разработки
+```shell
+npm run start
 ```
 
-To create a production build:
-
-```sh
-npm run prod
+### Сборка проекта без оптимизации
+```shell
+npm run build-dev
 ```
 
-To create a development build:
-
-```sh
-npm run dev
+### Сборка проекта с оптимизацией
+```shell
+npm run build-prod
 ```
 
-To start dev server:
-
-```sh
-npm run server
-```
-
-## Running
-
-```sh
-node dist/bundle.js
+### Очистка папки dist
+```shell
+npm run clear
 ```
